@@ -2,7 +2,7 @@
 
 int main(int argc, const char** argv) 
 {
-    std::cout << "hello, world" << std::endl;
+    std::cout << "Hello, OpenGL" << std::endl;
 
     return 0;
 }
