@@ -26,7 +26,7 @@ if(EMSCRIPTEN)
     message(STATUS "Emscripten used")
     set_target_properties(${PROJECT_NAME} 
         PROPERTIES SUFFIX ".html"
-        LINK_FLAGS "-Os -s USE_WEBGL2=1 -s FULL_ES3=1 -s USE_GLFW=3 -s WASM=1 --shell-file ${CMAKE_SOURCE_DIR}/shell_minimal.html"
+        LINK_FLAGS "-O3 -s USE_WEBGL2=1 -s FULL_ES3=1 -s USE_GLFW=3 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s NO_EXIT_RUNTIME=1 --shell-file ${CMAKE_SOURCE_DIR}/shell_minimal.html"
     )
 else()
     message(STATUS "Emscripten not used")
