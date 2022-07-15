@@ -22,7 +22,7 @@ ExternalProject_Add(
 set(DEP_LIST ${DEP_LIST} dep_spdlog)
 set(DEP_LIBS ${DEP_LIBS} spdlog$<$<CONFIG:Debug>:d>)
 
-if(__EMSCRIPTEN__)
+if(EMSCRIPTEN)
     message(STATUS "Emscripten used")
     set_target_properties(${PROJECT_NAME} 
         PROPERTIES SUFFIX ".html"
