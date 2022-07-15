@@ -1,5 +1,12 @@
 #include <spdlog/spdlog.h>
-#include <glad/glad.h>
+
+#ifdef __EMSCRIPTEN__
+    #include <emscriten.h>
+    #define GL_GLEXT_PROTOTYPES
+    #define EGL_EGLEXT_PROTOTYPES
+#else  
+    #include <glad/glad.h>
+#endif
 #include <GLFW/glfw3.h>
 
 
@@ -23,6 +30,9 @@ void OnKeyEvent(GLFWwindow* window,
     }
 }
 
+std::function<void()> loop;
+void main_loop() { loop(); }
+
 int main(int argc, const char** argv) 
 {
     SPDLOG_INFO("Start program");
@@ -30,10 +40,12 @@ int main(int argc, const char** argv)
     // glfw 라이브러리 초기화, 실패하면 에러 출력 후 종료
     SPDLOG_INFO("Initialize glfw");
     if(!glfwInit()) {
-        const char* description = nullptr;
-        glfwGetError(&description);
-        SPDLOG_ERROR("failed to initialize glfw: {}", description);
-        return -1;
+        //const char* description = nullptr;
+        //glfwGetError(&description);
+        //SPDLOG_ERROR("failed to initialize glfw: {}", description);
+        //return -1;
+        SPDLOG_ERROR("Failed to initialize glfw");
+        exit(EXIT_FAILURE);
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -47,16 +59,20 @@ int main(int argc, const char** argv)
     if (!window) {
         SPDLOG_ERROR("failed to create glfw window");
         glfwTerminate();
-        return -1;
+        //return -1;
+        exit(EXIT_FAILURE);
     }
     glfwMakeContextCurrent(window);
 
+#ifdef __EMSCRIPTEN__
+#else
     // glad를 활용한 OpenGL 함수 로딩
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         SPDLOG_ERROR("failed to initialize glad");
         glfwTerminate();
         return -1;
     }
+#endif
     auto glVersion = glGetString(GL_VERSION);
     SPDLOG_INFO("OpenGL context version: {}", glVersion);
 
@@ -64,15 +80,29 @@ int main(int argc, const char** argv)
     glfwSetFramebufferSizeCallback(window, OnFramebufferSizeChange);
     glfwSetKeyCallback(window, OnKeyEvent);
 
-    // glfw 루프 실행, 윈도우 close 버튼을 누르면 정상 종료
-    SPDLOG_INFO("Start main loop");
-    while(!glfwWindowShouldClose(window)) {
+    loop = [&] {
         glfwPollEvents();
         glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glfwSwapBuffers(window);
-    }
+    };
 
+    // glfw 루프 실행, 윈도우 close 버튼을 누르면 정상 종료
+    SPDLOG_INFO("Start main loop");
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(main_loop, 0, true);
+#else
+    while(!glfwWindowShouldClose(window)) {
+        // glfwPollEvents();
+        // glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
+        // glClear(GL_COLOR_BUFFER_BIT);
+        // glfwSwapBuffers(window);
+        main_loop();
+    }
+#endif
+
+    glfwDestroyWindow(window);
     glfwTerminate();
-    return 0;
+    //return 0;
+    exit(EXIT_SUCCESS);
 }
