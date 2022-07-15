@@ -1,14 +1,5 @@
-#include <spdlog/spdlog.h>
-
-#ifdef __EMSCRIPTEN__
-    #include <emscripten/emscripten.h>
-    #define GL_GLEXT_PROTOTYPES
-    #define EGL_EGLEXT_PROTOTYPES
-    //#define GLFW_INCLUDE_ES3
-#else  
-    #include <glad/glad.h>
-#endif
-#include <GLFW/glfw3.h>
+#include "common.h"
+#include "shader.h"
 
 
 void OnFramebufferSizeChange(GLFWwindow* window, int width, int height) {
@@ -76,6 +67,13 @@ int main(int argc, const char** argv)
 #endif
     auto glVersion = glGetString(GL_VERSION);
     SPDLOG_INFO("OpenGL context version: {}", glVersion);
+    
+    /// OpenGL function can be used from here. ///
+
+    auto vertexShader = Shader::CreateFromFile("./shader/simple.vs", GL_VERTEX_SHADER);
+    auto fragmentShader = Shader::CreateFromFile("./shader/simple.fs", GL_FRAGMENT_SHADER);
+    SPDLOG_INFO("vertex shader id: {}", vertexShader->Get());
+    SPDLOG_INFO("fragment shader id: {}", fragmentShader->Get());
 
     OnFramebufferSizeChange(window, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window, OnFramebufferSizeChange);
@@ -83,7 +81,7 @@ int main(int argc, const char** argv)
 
     loop = [&] {
         glfwPollEvents();
-        glClearColor(0.5f, 0.1f, 0.2f, 0.0f);
+        glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glfwSwapBuffers(window);
     };
