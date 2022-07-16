@@ -31,14 +31,13 @@ int main(int argc, const char** argv)
     // glfw 라이브러리 초기화, 실패하면 에러 출력 후 종료
     SPDLOG_INFO("Initialize glfw");
     if(!glfwInit()) {
-    #ifdef __EMSCRIPTEN
+    #ifdef __EMSCRIPTEN__
         SPDLOG_ERROR("Failed to initialize glfw");
     #else
         const char* description = nullptr;
         glfwGetError(&description);
         SPDLOG_ERROR("failed to initialize glfw: {}", description);
     #endif
-        
         exit(EXIT_FAILURE);
     }
 
