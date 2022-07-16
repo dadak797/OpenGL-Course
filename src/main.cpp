@@ -1,4 +1,4 @@
-#include "program.h"
+#include "context.h"
 
 
 void OnFramebufferSizeChange(GLFWwindow* window, int width, int height) {
@@ -31,11 +31,14 @@ int main(int argc, const char** argv)
     // glfw 라이브러리 초기화, 실패하면 에러 출력 후 종료
     SPDLOG_INFO("Initialize glfw");
     if(!glfwInit()) {
-        //const char* description = nullptr;
-        //glfwGetError(&description);
-        //SPDLOG_ERROR("failed to initialize glfw: {}", description);
-        //return -1;
+    #ifdef __EMSCRIPTEN
         SPDLOG_ERROR("Failed to initialize glfw");
+    #else
+        const char* description = nullptr;
+        glfwGetError(&description);
+        SPDLOG_ERROR("failed to initialize glfw: {}", description);
+    #endif
+        
         exit(EXIT_FAILURE);
     }
 
@@ -68,29 +71,21 @@ int main(int argc, const char** argv)
     SPDLOG_INFO("OpenGL context version: {}", glVersion);
     
     /// OpenGL function can be used from here. ///
-
-#ifdef __EMSCRIPTEN__
-    ShaderPtr vertexShader = Shader::CreateFromFile("./shader/simple_wasm.vs", GL_VERTEX_SHADER);
-    ShaderPtr fragmentShader = Shader::CreateFromFile("./shader/simple_wasm.fs", GL_FRAGMENT_SHADER);
-#else
-    ShaderPtr vertexShader = Shader::CreateFromFile("./shader/simple.vs", GL_VERTEX_SHADER);
-    ShaderPtr fragmentShader = Shader::CreateFromFile("./shader/simple.fs", GL_FRAGMENT_SHADER);
-#endif
-    SPDLOG_INFO("vertex shader id: {}", vertexShader->Get());
-    SPDLOG_INFO("fragment shader id: {}", fragmentShader->Get());
-
-    auto program = Program::Create({ fragmentShader, vertexShader });
-    SPDLOG_INFO("program id: {}", program->Get());
+    auto context = Context::Create();
+    if (!context) {
+        SPDLOG_ERROR("failed to create context");
+        glfwTerminate();
+        return -1;
+    }
 
     OnFramebufferSizeChange(window, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window, OnFramebufferSizeChange);
     glfwSetKeyCallback(window, OnKeyEvent);
 
-    loop = [&] {
-        glfwPollEvents();
-        glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+    loop = [&] { 
+        context->Render();
         glfwSwapBuffers(window);
+        glfwPollEvents();
     };
 
     // glfw 루프 실행, 윈도우 close 버튼을 누르면 정상 종료
@@ -99,16 +94,12 @@ int main(int argc, const char** argv)
     emscripten_set_main_loop(main_loop, 0, true);
 #else
     while(!glfwWindowShouldClose(window)) {
-        // glfwPollEvents();
-        // glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
-        // glClear(GL_COLOR_BUFFER_BIT);
-        // glfwSwapBuffers(window);
         main_loop();
     }
 #endif
+    context.reset();  // 메모리 정리
 
     glfwDestroyWindow(window);
     glfwTerminate();
-    //return 0;
     exit(EXIT_SUCCESS);
 }

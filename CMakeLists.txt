@@ -13,6 +13,7 @@ add_executable(${PROJECT_NAME}
     src/common.cpp
     src/shader.cpp
     src/program.cpp
+    src/context.cpp
 )
 
 include(Dependency.cmake)
