@@ -1,5 +1,4 @@
-#include "common.h"
-#include "shader.h"
+#include "program.h"
 
 
 void OnFramebufferSizeChange(GLFWwindow* window, int width, int height) {
@@ -71,14 +70,17 @@ int main(int argc, const char** argv)
     /// OpenGL function can be used from here. ///
 
 #ifdef __EMSCRIPTEN__
-    auto vertexShader = Shader::CreateFromFile("./shader/simple_wasm.vs", GL_VERTEX_SHADER);
-    auto fragmentShader = Shader::CreateFromFile("./shader/simple_wasm.fs", GL_FRAGMENT_SHADER);
+    ShaderPtr vertexShader = Shader::CreateFromFile("./shader/simple_wasm.vs", GL_VERTEX_SHADER);
+    ShaderPtr fragmentShader = Shader::CreateFromFile("./shader/simple_wasm.fs", GL_FRAGMENT_SHADER);
 #else
-    auto vertexShader = Shader::CreateFromFile("./shader/simple.vs", GL_VERTEX_SHADER);
-    auto fragmentShader = Shader::CreateFromFile("./shader/simple.fs", GL_FRAGMENT_SHADER);
+    ShaderPtr vertexShader = Shader::CreateFromFile("./shader/simple.vs", GL_VERTEX_SHADER);
+    ShaderPtr fragmentShader = Shader::CreateFromFile("./shader/simple.fs", GL_FRAGMENT_SHADER);
 #endif
     SPDLOG_INFO("vertex shader id: {}", vertexShader->Get());
     SPDLOG_INFO("fragment shader id: {}", fragmentShader->Get());
+
+    auto program = Program::Create({ fragmentShader, vertexShader });
+    SPDLOG_INFO("program id: {}", program->Get());
 
     OnFramebufferSizeChange(window, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window, OnFramebufferSizeChange);
