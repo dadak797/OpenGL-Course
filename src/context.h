@@ -2,6 +2,8 @@
 #define __CONTEXT_H__
 
 #include "program.h"
+#include "buffer.h"
+#include "vertex_layout.h"
 
 
 CLASS_PTR(Context)
@@ -14,6 +16,10 @@ private:
     Context() {}
     bool Init();
     ProgramUPtr m_program;
+
+    VertexLayoutUPtr m_vertexLayout;
+    BufferUPtr m_vertexBuffer;
+    BufferUPtr m_indexBuffer;
 };
 
 
