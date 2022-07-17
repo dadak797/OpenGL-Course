@@ -30,13 +30,8 @@ bool Context::Init() {
     m_indexBuffer = Buffer::CreateWithData(GL_ELEMENT_ARRAY_BUFFER,
                     GL_STATIC_DRAW, indices, sizeof(uint32_t) * 6);
     
-#ifdef __EMSCRIPTEN__
-    ShaderPtr vertexShader = Shader::CreateFromFile("./shader/simple_wasm.vs", GL_VERTEX_SHADER);
-    ShaderPtr fragmentShader = Shader::CreateFromFile("./shader/simple_wasm.fs", GL_FRAGMENT_SHADER);
-#else
     ShaderPtr vertexShader = Shader::CreateFromFile("./shader/simple.vs", GL_VERTEX_SHADER);
     ShaderPtr fragmentShader = Shader::CreateFromFile("./shader/simple.fs", GL_FRAGMENT_SHADER);
-#endif
     if (!vertexShader || !fragmentShader) 
         return false;
 

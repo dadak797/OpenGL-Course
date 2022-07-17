@@ -20,6 +20,12 @@ bool Shader::LoadFile(const std::string& filename, GLenum shaderType) {
         return false;
 
     auto& code = result.value();
+#ifdef __EMSCRIPTEN__
+    // #version 330 core -> #version 300 es\nprecision mediump float;
+    std::string version = "#version 330 core";
+    int start = code.find(version);
+    code.replace(start, version.size(), "#version 300 es\nprecision mediump float;");
+#endif
     const char* codePtr = code.c_str();
     int32_t codeLength = (int32_t)code.length();
     SPDLOG_INFO("Shader Source\n{}", codePtr);
