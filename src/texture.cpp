@@ -45,9 +45,9 @@ void Texture::SetTextureFromImage(const Image* image) {
         case 3: format = GL_RGB; break;
     }
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+    glTexImage2D(GL_TEXTURE_2D, 0, format,
         image->GetWidth(), image->GetHeight(), 0,
         format, GL_UNSIGNED_BYTE, image->GetData());
 
-    glGenerateMipmap(GL_TEXTURE_2D);
+    glGenerateMipmap(GL_TEXTURE_2D); 
 }

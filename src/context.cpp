@@ -57,6 +57,11 @@ bool Context::Init() {
     m_texture = Texture::CreateFromImage(image.get());
 
     auto image2 = Image::Load("./image/awesomeface.png");
+    if (!image2)
+        return false;
+    SPDLOG_INFO("image2: {}x{}, {} channels",
+        image2->GetWidth(), image2->GetHeight(), image2->GetChannelCount());
+
     m_texture2 = Texture::CreateFromImage(image2.get());
 
     glActiveTexture(GL_TEXTURE0);
