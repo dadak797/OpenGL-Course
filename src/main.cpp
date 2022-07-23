@@ -16,7 +16,7 @@ EM_BOOL onResizeCallback(int theEventType, const EmscriptenUiEvent* theEvent, vo
     int width, height;
     emscripten_get_canvas_element_size("#canvas", &width, &height);
     OnFramebufferSizeChange((GLFWwindow*)window, width, height);
-    return EM_TRUE;  
+    return EM_FALSE;  
 }
 #endif
 
@@ -61,8 +61,13 @@ int main(int argc, const char** argv)
 
     // glfw 윈도우 생성, 실패하면 에러 출력 후 종료
     SPDLOG_INFO("Create glfw window");
-    auto window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME,
-                                   nullptr, nullptr);
+#ifdef __EMSCRIPTEN__
+    int width, height;
+    emscripten_get_canvas_element_size("#canvas", &width, &height);
+    auto window = glfwCreateWindow(width, height, WINDOW_NAME, nullptr, nullptr);
+#else
+    auto window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, nullptr, nullptr);
+#endif
     if (!window) {
         SPDLOG_ERROR("failed to create glfw window");
         glfwTerminate();
@@ -90,10 +95,10 @@ int main(int argc, const char** argv)
         return -1;
     }
 
-    OnFramebufferSizeChange(window, WINDOW_WIDTH, WINDOW_HEIGHT);
 #ifdef __EMSCRIPTEN__
     emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, (void*)window, EM_TRUE, onResizeCallback);
 #else
+    OnFramebufferSizeChange(window, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window, OnFramebufferSizeChange);
 #endif
     glfwSetKeyCallback(window, OnKeyEvent);
