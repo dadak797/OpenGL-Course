@@ -15,6 +15,9 @@
 #endif
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #define CLASS_PTR(klassName) \
     class klassName; \
