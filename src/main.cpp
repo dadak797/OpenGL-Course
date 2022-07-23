@@ -1,10 +1,24 @@
 #include "context.h"
+#ifdef __EMSCRIPTEN__
+    #include <emscripten.h>
+    #include <emscripten/html5.h>
+#endif
 
 
 void OnFramebufferSizeChange(GLFWwindow* window, int width, int height) {
     SPDLOG_INFO("framebuffer size changed: ({} x {})", width, height);
     glViewport(0, 0, width, height);
 }
+
+#ifdef __EMSCRIPTEN__
+EM_BOOL onResizeCallback(int theEventType, const EmscriptenUiEvent* theEvent, void* window)
+{
+    int width, height;
+    emscripten_get_canvas_element_size("#canvas", &width, &height);
+    OnFramebufferSizeChange((GLFWwindow*)window, width, height);
+    return EM_TRUE;  
+}
+#endif
 
 void OnKeyEvent(GLFWwindow* window,
     int key, int scancode, int action, int mods) {
@@ -23,7 +37,7 @@ void OnKeyEvent(GLFWwindow* window,
 
 std::function<void()> loop;
 void main_loop() { loop(); }
-
+ 
 int main(int argc, const char** argv) 
 {
     SPDLOG_INFO("Start program");
@@ -52,7 +66,6 @@ int main(int argc, const char** argv)
     if (!window) {
         SPDLOG_ERROR("failed to create glfw window");
         glfwTerminate();
-        //return -1;
         exit(EXIT_FAILURE);
     }
     glfwMakeContextCurrent(window);
@@ -78,7 +91,11 @@ int main(int argc, const char** argv)
     }
 
     OnFramebufferSizeChange(window, WINDOW_WIDTH, WINDOW_HEIGHT);
+#ifdef __EMSCRIPTEN__
+    emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, (void*)window, EM_TRUE, onResizeCallback);
+#else
     glfwSetFramebufferSizeCallback(window, OnFramebufferSizeChange);
+#endif
     glfwSetKeyCallback(window, OnKeyEvent);
 
     loop = [&] { 
