@@ -7,7 +7,8 @@
 
 void OnFramebufferSizeChange(GLFWwindow* window, int width, int height) {
     SPDLOG_INFO("framebuffer size changed: ({} x {})", width, height);
-    glViewport(0, 0, width, height);
+    auto context = (Context*)glfwGetWindowUserPointer(window);
+    context->Reshape(width, height);
 }
 
 #ifdef __EMSCRIPTEN__
@@ -94,6 +95,7 @@ int main(int argc, const char** argv)
         glfwTerminate();
         return -1;
     }
+    glfwSetWindowUserPointer(window, context.get());  // Get window size using user pointer
 
 #ifdef __EMSCRIPTEN__
     emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, (void*)window, EM_TRUE, onResizeCallback);
@@ -103,10 +105,11 @@ int main(int argc, const char** argv)
 #endif
     glfwSetKeyCallback(window, OnKeyEvent);
 
-    loop = [&] { 
+    loop = [&] {
+        glfwPollEvents();
+        context->ProcessInput(window);
         context->Render();
         glfwSwapBuffers(window);
-        glfwPollEvents();
     };
 
     // glfw 루프 실행, 윈도우 close 버튼을 누르면 정상 종료
