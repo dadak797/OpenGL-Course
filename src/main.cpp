@@ -36,6 +36,18 @@ void OnKeyEvent(GLFWwindow* window,
     }
 }
 
+void OnCursorPos(GLFWwindow* window, double x, double y) {
+    auto context = (Context*)glfwGetWindowUserPointer(window);
+    context->MouseMove(x, y);
+}
+
+void OnMouseButton(GLFWwindow* window, int button, int action, int modifier) {
+    auto context = (Context*)glfwGetWindowUserPointer(window);
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    context->MouseButton(button, action, x, y);
+}
+
 std::function<void()> loop;
 void main_loop() { loop(); }
  
@@ -104,6 +116,8 @@ int main(int argc, const char** argv)
     glfwSetFramebufferSizeCallback(window, OnFramebufferSizeChange);
 #endif
     glfwSetKeyCallback(window, OnKeyEvent);
+    glfwSetCursorPosCallback(window, OnCursorPos);
+    glfwSetMouseButtonCallback(window, OnMouseButton);
 
     loop = [&] {
         glfwPollEvents();

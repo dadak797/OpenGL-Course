@@ -10,6 +10,8 @@ ContextUPtr Context::Create() {
 }
 
 void Context::ProcessInput(GLFWwindow* window) {
+    if (!m_cameraControl) return;
+
     const float cameraSpeed = 0.01f;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         m_cameraPos += cameraSpeed * m_cameraFront;
@@ -33,6 +35,38 @@ void Context::Reshape(int width, int height) {
     m_width = width;
     m_height = height;
     glViewport(0, 0, m_width, m_height);
+}
+
+void Context::MouseMove(double x, double y) {
+    if (!m_cameraControl) return;
+
+    auto pos = glm::vec2((float)x, (float)y);
+    auto deltaPos = pos - m_prevMousePos;
+
+    const float cameraRotSpeed = 0.4f;
+    m_cameraYaw -= deltaPos.x * cameraRotSpeed;
+    m_cameraPitch -= deltaPos.y * cameraRotSpeed;
+
+    if (m_cameraYaw < 0.0f)   m_cameraYaw += 360.0f;
+    if (m_cameraYaw > 360.0f) m_cameraYaw -= 360.0f;
+
+    if (m_cameraPitch > 89.0f)  m_cameraPitch = 89.0f;
+    if (m_cameraPitch < -89.0f) m_cameraPitch = -89.0f;
+
+    m_prevMousePos = pos;    
+}
+
+void Context::MouseButton(int button, int action, double x, double y) {
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        if (action == GLFW_PRESS) {
+            // 마우스 조작 시작 시점에 현재 마우스 커서 위치 저장
+            m_prevMousePos = glm::vec2((float)x, (float)y);
+            m_cameraControl = true;
+        }
+        else if (action == GLFW_RELEASE) {
+            m_cameraControl = false;
+        }
+    }
 }
 
 bool Context::Init() {
@@ -148,6 +182,11 @@ void Context::Render() {
     glEnable(GL_DEPTH_TEST);
 
     m_program->Use();
+
+	m_cameraFront =
+        glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraYaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
+        glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraPitch), glm::vec3(1.0f, 0.0f, 0.0f)) *
+        glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
 
     auto projection = glm::perspective(glm::radians(45.0f), 
         (float)m_width / (float)m_height, 0.01f, 30.0f);
