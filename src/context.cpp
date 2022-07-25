@@ -10,9 +10,14 @@ ContextUPtr Context::Create() {
 }
 
 void Context::ProcessInput(GLFWwindow* window) {
+    SPDLOG_INFO("Camera Control: {}", m_cameraControl);
     if (!m_cameraControl) return;
 
+#ifdef __EMSCRIPTEN__
+    const float cameraSpeed = 0.2f;
+#else
     const float cameraSpeed = 0.01f;
+#endif
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         m_cameraPos += cameraSpeed * m_cameraFront;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
