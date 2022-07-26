@@ -3,6 +3,8 @@
     #include <emscripten.h>
     #include <emscripten/html5.h>
 #endif
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 
 void OnFramebufferSizeChange(GLFWwindow* window, int width, int height) {
@@ -23,6 +25,7 @@ EM_BOOL onResizeCallback(int theEventType, const EmscriptenUiEvent* theEvent, vo
 
 void OnKeyEvent(GLFWwindow* window,
     int key, int scancode, int action, int mods) {
+    ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
     SPDLOG_INFO("key: {}, scancode: {}, action: {}, mods: {}{}{}",
         key, scancode,
         action == GLFW_PRESS ? "Pressed" :
@@ -42,10 +45,19 @@ void OnCursorPos(GLFWwindow* window, double x, double y) {
 }
 
 void OnMouseButton(GLFWwindow* window, int button, int action, int modifier) {
+    ImGui_ImplGlfw_MouseButtonCallback(window, button, action, modifier);
     auto context = (Context*)glfwGetWindowUserPointer(window);
     double x, y;
     glfwGetCursorPos(window, &x, &y);
     context->MouseButton(button, action, x, y);
+}
+
+void OnCharEvent(GLFWwindow* window, unsigned int ch) {
+    ImGui_ImplGlfw_CharCallback(window, ch);
+}
+
+void OnScroll(GLFWwindow* window, double xoffset, double yoffset) {
+    ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
 }
 
 std::function<void()> loop;
@@ -101,6 +113,15 @@ int main(int argc, const char** argv)
     SPDLOG_INFO("OpenGL context version: {}", glVersion);
     
     /// OpenGL function can be used from here. ///
+
+    // ImGUI Initialization
+    auto imguiContext = ImGui::CreateContext();
+    ImGui::SetCurrentContext(imguiContext);
+    ImGui_ImplGlfw_InitForOpenGL(window, false);
+    ImGui_ImplOpenGL3_Init();
+    ImGui_ImplOpenGL3_CreateFontsTexture();
+    ImGui_ImplOpenGL3_CreateDeviceObjects();
+
     auto context = Context::Create();
     if (!context) {
         SPDLOG_ERROR("failed to create context");
@@ -116,13 +137,21 @@ int main(int argc, const char** argv)
     glfwSetFramebufferSizeCallback(window, OnFramebufferSizeChange);
 #endif
     glfwSetKeyCallback(window, OnKeyEvent);
+    glfwSetCharCallback(window, OnCharEvent);
     glfwSetCursorPosCallback(window, OnCursorPos);
     glfwSetMouseButtonCallback(window, OnMouseButton);
+    glfwSetScrollCallback(window, OnScroll);
 
     loop = [&] {
         glfwPollEvents();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         context->ProcessInput(window);
         context->Render();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
     };
 
@@ -136,6 +165,12 @@ int main(int argc, const char** argv)
     }
 #endif
     context.reset();  // 메모리 정리
+
+    ImGui_ImplOpenGL3_DestroyFontsTexture();
+    ImGui_ImplOpenGL3_DestroyDeviceObjects();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext(imguiContext);
 
     glfwDestroyWindow(window);
     glfwTerminate();
