@@ -103,6 +103,7 @@ ExternalProject_Add(
 set(DEP_LIST ${DEP_LIST} dep_glm)
 
 # ImGUI
+set(IMGUI_VERSION "1.88")
 if(EMSCRIPTEN)
     add_library(imgui
         imgui/imgui-emscripten/imgui_draw.cpp
@@ -118,16 +119,16 @@ if(EMSCRIPTEN)
     set(DEP_LIBS ${DEP_LIBS} imgui)
 else()
     add_library(imgui
-        imgui/imgui-1.82/imgui_draw.cpp
-        imgui/imgui-1.82/imgui_tables.cpp
-        imgui/imgui-1.82/imgui_widgets.cpp
-        imgui/imgui-1.82/imgui.cpp
-        imgui/imgui-1.82/imgui_impl_glfw.cpp
-        imgui/imgui-1.82/imgui_impl_opengl3.cpp
+        imgui/imgui-${IMGUI_VERSION}/imgui_draw.cpp
+        imgui/imgui-${IMGUI_VERSION}/imgui_tables.cpp
+        imgui/imgui-${IMGUI_VERSION}/imgui_widgets.cpp
+        imgui/imgui-${IMGUI_VERSION}/imgui.cpp
+        imgui/imgui-${IMGUI_VERSION}/imgui_impl_glfw.cpp
+        imgui/imgui-${IMGUI_VERSION}/imgui_impl_opengl3.cpp
     )
     target_include_directories(imgui PRIVATE ${DEP_INCLUDE_DIR})
     add_dependencies(imgui ${DEP_LIST})
-    set(DEP_INCLUDE_DIR ${DEP_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui-1.82)
+    set(DEP_INCLUDE_DIR ${DEP_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui-${IMGUI_VERSION})
     set(DEP_LIST ${DEP_LIST} imgui)
     set(DEP_LIBS ${DEP_LIBS} imgui)
 endif()
