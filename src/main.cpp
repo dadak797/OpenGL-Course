@@ -118,6 +118,12 @@ int main(int argc, const char** argv)
     // ImGUI Initialization
     auto imguiContext = ImGui::CreateContext();
     ImGui::SetCurrentContext(imguiContext);
+
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsClassic();
+    io.Fonts->AddFontFromFileTTF("imgui/Fonts/Consolas.ttf", 13.0f);
+
     ImGui_ImplGlfw_InitForOpenGL(window, false);
     ImGui_ImplOpenGL3_Init();
     ImGui_ImplOpenGL3_CreateFontsTexture();
