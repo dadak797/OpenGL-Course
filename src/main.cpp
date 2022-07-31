@@ -3,6 +3,7 @@
     #include <emscripten.h>
     #include <emscripten/html5.h>
 #endif
+#include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
@@ -145,6 +146,7 @@ int main(int argc, const char** argv)
     loop = [&] {
         glfwPollEvents();
         ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
 
         context->ProcessInput(window);
