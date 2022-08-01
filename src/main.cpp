@@ -41,6 +41,7 @@ void OnKeyEvent(GLFWwindow* window,
 }
 
 void OnCursorPos(GLFWwindow* window, double x, double y) {
+    ImGui_ImplGlfw_CursorPosCallback(window, x, y);
     auto context = (Context*)glfwGetWindowUserPointer(window);
     context->MouseMove(x, y);
 }
@@ -120,16 +121,15 @@ int main(int argc, const char** argv)
     ImGui::SetCurrentContext(imguiContext);
 
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsDark();
+    ImGui::StyleColorsLight();
     //ImGui::StyleColorsClassic();
     io.Fonts->AddFontFromFileTTF("imgui/Fonts/Consolas.ttf", 13.0f);
 
     ImGui_ImplGlfw_InitForOpenGL(window, false);
     ImGui_ImplOpenGL3_Init();
     ImGui_ImplOpenGL3_CreateFontsTexture();
-    SPDLOG_INFO("ImGui_ImplOpenGL3_CreateFontsTexture");
     ImGui_ImplOpenGL3_CreateDeviceObjects();
-    SPDLOG_INFO("ImGui_ImplOpenGL3_CreateDeviceObjects");
 
     auto context = Context::Create();
     if (!context) {
