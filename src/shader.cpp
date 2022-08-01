@@ -28,7 +28,7 @@ bool Shader::LoadFile(const std::string& filename, GLenum shaderType) {
 #endif
     const char* codePtr = code.c_str();
     int32_t codeLength = (int32_t)code.length();
-    SPDLOG_INFO("Shader Source\n{}", codePtr);
+    //SPDLOG_INFO("Shader Source\n{}", codePtr);
 
     // create and compile shader
     m_shader = glCreateShader(shaderType);

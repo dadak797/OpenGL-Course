@@ -72,7 +72,7 @@ int main(int argc, const char** argv)
     SPDLOG_INFO("Initialize glfw");
     if(!glfwInit()) {
     #ifdef __EMSCRIPTEN__
-        SPDLOG_ERROR("Failed to initialize glfw");
+        SPDLOG_ERROR("failed to initialize glfw");
     #else
         const char* description = nullptr;
         glfwGetError(&description);
@@ -127,7 +127,9 @@ int main(int argc, const char** argv)
     ImGui_ImplGlfw_InitForOpenGL(window, false);
     ImGui_ImplOpenGL3_Init();
     ImGui_ImplOpenGL3_CreateFontsTexture();
+    SPDLOG_INFO("ImGui_ImplOpenGL3_CreateFontsTexture");
     ImGui_ImplOpenGL3_CreateDeviceObjects();
+    SPDLOG_INFO("ImGui_ImplOpenGL3_CreateDeviceObjects");
 
     auto context = Context::Create();
     if (!context) {
@@ -138,6 +140,8 @@ int main(int argc, const char** argv)
     glfwSetWindowUserPointer(window, context.get());  // Get window size using user pointer
 
 #ifdef __EMSCRIPTEN__
+    emscripten_get_canvas_element_size("#canvas", &width, &height);
+    OnFramebufferSizeChange(window, width, height);
     emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, (void*)window, EM_TRUE, onResizeCallback);
 #else
     OnFramebufferSizeChange(window, WINDOW_WIDTH, WINDOW_HEIGHT);

@@ -112,7 +112,7 @@ if(EMSCRIPTEN)
         imgui/imgui-emscripten/imgui_impl_glfw.cpp
         imgui/imgui-emscripten/imgui_impl_opengl3.cpp
     )
-    target_include_directories(imgui PRIVATE ${DEP_INCLUDE_DIR})
+    target_include_directories(imgui PRIVATE ${DEP_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/src)
     add_dependencies(imgui ${DEP_LIST})
     set(DEP_INCLUDE_DIR ${DEP_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui-emscripten)
     set(DEP_LIST ${DEP_LIST} imgui)

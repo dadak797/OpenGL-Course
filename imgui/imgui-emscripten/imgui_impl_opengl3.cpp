@@ -92,6 +92,10 @@
 #endif
 #endif
 
+#ifdef __EMSCRIPTEN__  // by dadak797
+    #include "common.h"
+#endif  // __EMSCRIPTEN__  // by dadak797
+
 // OpenGL Data
 static char         g_GlslVersionString[32] = "";
 static GLuint       g_FontTexture = 0;
@@ -355,13 +359,15 @@ static bool CheckProgram(GLuint handle, const char* desc)
     glGetProgramiv(handle, GL_LINK_STATUS, &status);
     glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &log_length);
     if ((GLboolean)status == GL_FALSE)
-        fprintf(stderr, "ERROR: ImGui_ImplOpenGL3_CreateDeviceObjects: failed to link %s! (with GLSL '%s')\n", desc, g_GlslVersionString);
+        //fprintf(stderr, "ERROR: ImGui_ImplOpenGL3_CreateDeviceObjects: failed to link %s! (with GLSL '%s')\n", desc, g_GlslVersionString);
+        SPDLOG_ERROR("ERROR: ImGui_ImplOpenGL3_CreateDeviceObjects: failed to link {}! (with GLSL '{}}')\n", desc, g_GlslVersionString);
     if (log_length > 0)
     {
         ImVector<char> buf;
         buf.resize((int)(log_length + 1));
         glGetProgramInfoLog(handle, log_length, NULL, (GLchar*)buf.begin());
-        fprintf(stderr, "%s\n", buf.begin());
+        //fprintf(stderr, "%s\n", buf.begin());
+        SPDLOG_ERROR("{}", buf.begin());
     }
     return (GLboolean)status == GL_TRUE;
 }
