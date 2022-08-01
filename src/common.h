@@ -7,9 +7,8 @@
 #include <optional>
 #ifdef __EMSCRIPTEN__
     #include <emscripten/emscripten.h>
-    //#define GL_GLEXT_PROTOTYPES
-    //#define EGL_EGLEXT_PROTOTYPES
     #define GLFW_INCLUDE_ES3
+    #define GLFW_INCLUDE_GLEXT
 #else  
     #include <glad/glad.h>
 #endif
