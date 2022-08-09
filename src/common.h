@@ -26,6 +26,7 @@
 
 
 std::optional<std::string> LoadTextFile(const std::string& filename);
+glm::vec3 GetAttenuationCoeff(float distance);
 
 
 #endif // __COMMON_H__
