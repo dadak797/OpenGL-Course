@@ -26,7 +26,7 @@ if(EMSCRIPTEN)
     message(STATUS "Emscripten used")
     set_target_properties(${PROJECT_NAME} 
         PROPERTIES SUFFIX ".html"
-        LINK_FLAGS "-O3 -s USE_WEBGL2=1 -s FULL_ES3=1 -s USE_GLFW=3 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s NO_EXIT_RUNTIME=1 --shell-file ${CMAKE_SOURCE_DIR}/shell_minimal.html --preload-file ${CMAKE_SOURCE_DIR}@/"
+        LINK_FLAGS "-O3 -s USE_WEBGL2=1 -s FULL_ES3=1 -s USE_GLFW=3 -s USE_ZLIB=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s NO_EXIT_RUNTIME=1 --shell-file ${CMAKE_SOURCE_DIR}/shell_minimal.html --preload-file ${CMAKE_SOURCE_DIR}@/"
     )
 else()
     message(STATUS "Emscripten not used")
@@ -120,32 +120,64 @@ set(DEP_LIBS ${DEP_LIBS} imgui)
 
 # assimp
 set(ASSIMP_VERSION "v5.2.4")
-ExternalProject_Add(
-    dep_assimp
-    GIT_REPOSITORY "https://github.com/assimp/assimp"
-    GIT_TAG ${ASSIMP_VERSION}
-    GIT_SHALLOW 1
-    UPDATE_COMMAND ""
-    PATCH_COMMAND ""
-    CMAKE_ARGS
-        -DCMAKE_INSTALL_PREFIX=${DEP_INSTALL_DIR}
-        -DBUILD_SHARED_LIBS=OFF
-        -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
-        -DASSIMP_BUILD_TESTS=OFF
-        -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
-        -DASSIMP_BUILD_ZLIB=ON
-    TEST_COMMAND ""
-)
+if(EMSCRIPTEN)
+    ExternalProject_Add(
+        dep_assimp
+        GIT_REPOSITORY "https://github.com/assimp/assimp"
+        GIT_TAG ${ASSIMP_VERSION}
+        GIT_SHALLOW 1
+        UPDATE_COMMAND ""
+        PATCH_COMMAND ""
+        CMAKE_ARGS
+            -DCMAKE_INSTALL_PREFIX=${DEP_INSTALL_DIR}
+            -DBUILD_SHARED_LIBS=OFF
+            -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
+            -DASSIMP_BUILD_TESTS=OFF
+            -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
+            -DASSIMP_BUILD_ZLIB=OFF
+        TEST_COMMAND ""
+    )
+else()
+    ExternalProject_Add(
+        dep_assimp
+        GIT_REPOSITORY "https://github.com/assimp/assimp"
+        GIT_TAG ${ASSIMP_VERSION}
+        GIT_SHALLOW 1
+        UPDATE_COMMAND ""
+        PATCH_COMMAND ""
+        CMAKE_ARGS
+            -DCMAKE_INSTALL_PREFIX=${DEP_INSTALL_DIR}
+            -DBUILD_SHARED_LIBS=OFF
+            -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
+            -DASSIMP_BUILD_TESTS=OFF
+            -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
+            -DASSIMP_BUILD_ZLIB=ON
+        TEST_COMMAND ""
+    )
+endif()
 set(DEP_LIST ${DEP_LIST} dep_assimp)
-if(${ASSIMP_VERSION} EQUAL "v5.0.1")
-    set(DEP_LIBS ${DEP_LIBS}
-        assimp-vc141-mt$<$<CONFIG:Debug>:d>
-        zlibstatic$<$<CONFIG:Debug>:d>
-        IrrXML$<$<CONFIG:Debug>:d>
-    )
-elseif(${ASSIMP_VERSION} EQUAL "v5.2.4")
-    set(DEP_LIBS ${DEP_LIBS}
-        assimp-vc141-mt
-        zlibstatic$<$<CONFIG:Debug>:d>
-    )
+if(EMSCRIPTEN)
+    if(${ASSIMP_VERSION} EQUAL "v5.0.1")
+        set(DEP_LIBS ${DEP_LIBS}
+            assimp
+            IrrXML
+        )
+    else()
+        set(DEP_LIBS ${DEP_LIBS}
+            assimp
+        )
+    endif()
+else()
+    if(${ASSIMP_VERSION} EQUAL "v5.0.1")
+        set(DEP_LIBS ${DEP_LIBS}
+            assimp-vc141-mt$<$<CONFIG:Debug>:d>
+            zlibstatic$<$<CONFIG:Debug>:d>
+            IrrXML$<$<CONFIG:Debug>:d>
+        )
+    elseif(${ASSIMP_VERSION} EQUAL "v5.2.4")
+        set(DEP_LIBS ${DEP_LIBS}
+            assimp-vc141-mt
+            zlibstatic$<$<CONFIG:Debug>:d>
+        )
+    endif()
 endif()
