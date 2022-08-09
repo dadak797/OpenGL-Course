@@ -18,6 +18,9 @@ add_executable(${PROJECT_NAME}
     src/vertex_layout.cpp  src/vertex_layout.h
     src/image.cpp          src/image.h
     src/texture.cpp        src/texture.h
+    shader/lighting.fs     shader/lighting.vs
+    shader/simple.fs       shader/simple.vs
+    shader/texture.fs      shader/texture.vs
 )
 
 include(Dependency.cmake)
