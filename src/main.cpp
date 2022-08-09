@@ -100,7 +100,7 @@ int main(int argc, const char** argv)
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
-    glfwMakeContextCurrent(window); 
+    glfwMakeContextCurrent(window);
 
 #ifdef __EMSCRIPTEN__
 #else
