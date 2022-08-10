@@ -157,24 +157,24 @@ else()
 endif()
 set(DEP_LIST ${DEP_LIST} dep_assimp)
 if(EMSCRIPTEN)
-    if(${ASSIMP_VERSION} EQUAL "v5.0.1")
+    if(${ASSIMP_VERSION} STREQUAL "v5.0.1")
         set(DEP_LIBS ${DEP_LIBS}
             assimp
             IrrXML
         )
-    else()
+    elseif(${ASSIMP_VERSION} STREQUAL "v5.2.4")
         set(DEP_LIBS ${DEP_LIBS}
             assimp
         )
     endif()
 else()
-    if(${ASSIMP_VERSION} EQUAL "v5.0.1")
+    if(${ASSIMP_VERSION} STREQUAL "v5.0.1")
         set(DEP_LIBS ${DEP_LIBS}
             assimp-vc141-mt$<$<CONFIG:Debug>:d>
             zlibstatic$<$<CONFIG:Debug>:d>
             IrrXML$<$<CONFIG:Debug>:d>
         )
-    elseif(${ASSIMP_VERSION} EQUAL "v5.2.4")
+    elseif(${ASSIMP_VERSION} STREQUAL "v5.2.4")
         set(DEP_LIBS ${DEP_LIBS}
             assimp-vc141-mt
             zlibstatic$<$<CONFIG:Debug>:d>
