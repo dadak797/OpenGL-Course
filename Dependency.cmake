@@ -24,6 +24,7 @@ set(DEP_LIBS ${DEP_LIBS} spdlog$<$<CONFIG:Debug>:d>)
 
 if(EMSCRIPTEN)
     message(STATUS "Emscripten used")
+    #set(CMAKE_CXX_FLAGS -m32)  # 64-bit build
     set_target_properties(${PROJECT_NAME} 
         PROPERTIES SUFFIX ".html"
         LINK_FLAGS "-O3 -s USE_WEBGL2=1 -s FULL_ES3=1 -s USE_GLFW=3 -s USE_ZLIB=1 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s NO_EXIT_RUNTIME=1 --shell-file ${CMAKE_SOURCE_DIR}/shell_minimal.html --preload-file ${CMAKE_SOURCE_DIR}@/"
@@ -121,22 +122,11 @@ set(DEP_LIBS ${DEP_LIBS} imgui)
 # assimp
 set(ASSIMP_VERSION "v5.2.4")
 if(EMSCRIPTEN)
-    ExternalProject_Add(
-        dep_assimp
-        GIT_REPOSITORY "https://github.com/assimp/assimp"
-        GIT_TAG ${ASSIMP_VERSION}
-        GIT_SHALLOW 1
-        UPDATE_COMMAND ""
-        PATCH_COMMAND ""
-        CMAKE_ARGS
-            -DCMAKE_INSTALL_PREFIX=${DEP_INSTALL_DIR}
-            -DBUILD_SHARED_LIBS=OFF
-            -DASSIMP_BUILD_ASSIMP_TOOLS=OFF
-            -DASSIMP_BUILD_TESTS=OFF
-            -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
-            -DASSIMP_BUILD_ZLIB=OFF
-        TEST_COMMAND ""
-    )
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build Shared Libs")
+    set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "Build Assimp tests")
+    set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "Build Assimp Tools")
+    set(ASSIMP_BUILD_ZLIB OFF CACHE BOOL "Build zlib")
+    add_subdirectory(assimp)
 else()
     ExternalProject_Add(
         dep_assimp
@@ -155,8 +145,10 @@ else()
         TEST_COMMAND ""
     )
 endif()
-set(DEP_LIST ${DEP_LIST} dep_assimp)
+
 if(EMSCRIPTEN)
+    set(DEP_INCLUDE_DIR ${DEP_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/assimp/include)
+    set(DEP_LIST ${DEP_LIST} assimp)
     if(${ASSIMP_VERSION} STREQUAL "v5.0.1")
         set(DEP_LIBS ${DEP_LIBS}
             assimp
@@ -168,6 +160,7 @@ if(EMSCRIPTEN)
         )
     endif()
 else()
+    set(DEP_LIST ${DEP_LIST} dep_assimp)
     if(${ASSIMP_VERSION} STREQUAL "v5.0.1")
         set(DEP_LIBS ${DEP_LIBS}
             assimp-vc141-mt$<$<CONFIG:Debug>:d>
