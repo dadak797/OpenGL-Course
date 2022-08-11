@@ -26,8 +26,7 @@ private:
     ProgramUPtr m_simpleProgram;
 
     MeshUPtr m_box;
-    ModelUPtr m_model;
-    
+
     TextureUPtr m_texture;
     TextureUPtr m_texture2;
 
@@ -51,12 +50,9 @@ private:
     bool m_flashLightMode { false };
 
     // material parameter
-    struct Material {
-        TextureUPtr diffuse;
-        TextureUPtr specular;
-        float shininess { 32.0f };
-    };
-    Material m_material;
+    MaterialPtr m_planeMaterial;
+    MaterialPtr m_box1Material;
+    MaterialPtr m_box2Material;
 
     // Camera parameter
     bool m_cameraControl { false };

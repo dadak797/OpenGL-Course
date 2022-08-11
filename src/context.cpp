@@ -77,10 +77,6 @@ void Context::MouseButton(int button, int action, double x, double y) {
 bool Context::Init() {
     m_box = Mesh::CreateBox();
 
-    m_model = Model::Load("./model/backpack/backpack.obj");
-    if (!m_model)
-        return false;
-    
     m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
     if (!m_simpleProgram)
         return false;
@@ -110,19 +106,26 @@ bool Context::Init() {
     // m_material.diffuse = Texture::CreateFromImage(Image::Load("./image/container2.png").get());
 	// m_material.specular = Texture::CreateFromImage(Image::Load("./image/container2_specular.png").get());
 
-    m_material.diffuse = Texture::CreateFromImage(
-        Image::CreateSingleColorImage(4, 4, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)).get());
-    m_material.specular = Texture::CreateFromImage(
-        Image::CreateSingleColorImage(4, 4, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
+    TexturePtr darkGrayTexture = Texture::CreateFromImage(
+    Image::CreateSingleColorImage(4, 4, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f)).get());
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_texture->Get());
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_texture2->Get());
+    TexturePtr grayTexture = Texture::CreateFromImage(
+    Image::CreateSingleColorImage(4, 4, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
+            
+    m_planeMaterial = Material::Create();
+    m_planeMaterial->diffuse = Texture::CreateFromImage(Image::Load("./image/marble.jpg").get());
+    m_planeMaterial->specular = grayTexture;
+    m_planeMaterial->shininess = 128.0f;
 
-    m_program->Use();
-	m_program->SetUniform("tex", 0);
-    m_program->SetUniform("tex2", 1);
+    m_box1Material = Material::Create();
+    m_box1Material->diffuse = Texture::CreateFromImage(Image::Load("./image/container.jpg").get());
+    m_box1Material->specular = darkGrayTexture;
+    m_box1Material->shininess = 16.0f;
+
+    m_box2Material = Material::Create();
+    m_box2Material->diffuse = Texture::CreateFromImage(Image::Load("./image/container2.png").get());
+    m_box2Material->specular = Texture::CreateFromImage(Image::Load("./image/container2_specular.png").get());
+    m_box2Material->shininess = 64.0f;
 
     return true;
 }
@@ -152,9 +155,6 @@ void Context::Render() {
             ImGui::ColorEdit3("l.specular", glm::value_ptr(m_light.specular));
             ImGui::Checkbox("flash light", &m_flashLightMode);
         }        
-        if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::DragFloat("m.shininess", &m_material.shininess, 1.0f, 1.0f, 256.0f);
-        }
         ImGui::Checkbox("animation", &m_animation);
     }
     ImGui::End();
@@ -203,18 +203,4 @@ void Context::Render() {
     m_program->SetUniform("light.ambient", m_light.ambient);
     m_program->SetUniform("light.diffuse", m_light.diffuse);
     m_program->SetUniform("light.specular", m_light.specular);
-
-    m_program->SetUniform("material.diffuse", 0);
-    m_program->SetUniform("material.specular", 1);
-    m_program->SetUniform("material.shininess", m_material.shininess);
-    glActiveTexture(GL_TEXTURE0);
-    m_material.diffuse->Bind();
-    glActiveTexture(GL_TEXTURE1);
-    m_material.specular->Bind();
-
-    auto modelTransform = glm::mat4(1.0f);
-    auto transform = projection * view * modelTransform;
-    m_program->SetUniform("transform", transform);
-    m_program->SetUniform("modelTransform", modelTransform);
-    m_model->Draw(m_program.get());
 }
