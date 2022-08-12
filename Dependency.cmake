@@ -149,16 +149,7 @@ endif()
 if(EMSCRIPTEN)
     set(DEP_INCLUDE_DIR ${DEP_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/assimp/include)
     set(DEP_LIST ${DEP_LIST} assimp)
-    if(${ASSIMP_VERSION} STREQUAL "v5.0.1")
-        set(DEP_LIBS ${DEP_LIBS}
-            assimp
-            IrrXML
-        )
-    elseif(${ASSIMP_VERSION} STREQUAL "v5.2.4")
-        set(DEP_LIBS ${DEP_LIBS}
-            assimp
-        )
-    endif()
+    set(DEP_LIBS ${DEP_LIBS} assimp)
 else()
     set(DEP_LIST ${DEP_LIST} dep_assimp)
     if(${ASSIMP_VERSION} STREQUAL "v5.0.1")

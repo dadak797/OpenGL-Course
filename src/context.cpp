@@ -171,7 +171,7 @@ void Context::Render() {
     // m_light.direction = m_cameraFront;
 
     auto projection = glm::perspective(glm::radians(45.0f), 
-        (float)m_width / (float)m_height, 0.01f, 30.0f);
+        (float)m_width / (float)m_height, 0.1f, 30.0f);
     
     // View matrix
     auto view = glm::lookAt(m_cameraPos, m_cameraPos + m_cameraFront, m_cameraUp);
@@ -203,4 +203,33 @@ void Context::Render() {
     m_program->SetUniform("light.ambient", m_light.ambient);
     m_program->SetUniform("light.diffuse", m_light.diffuse);
     m_program->SetUniform("light.specular", m_light.specular);
+
+    auto modelTransform =
+        glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.5f, 0.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(10.0f, 1.0f, 10.0f));
+    auto transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_planeMaterial->SetToProgram(m_program.get());
+    m_box->Draw(m_program.get());
+
+    modelTransform =
+        glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.75f, -4.0f)) *
+        glm::rotate(glm::mat4(1.0f), glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(1.5f, 1.5f, 1.5f));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_box1Material->SetToProgram(m_program.get());
+    m_box->Draw(m_program.get());
+
+    modelTransform =
+        glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.749f, 2.0f)) *
+        glm::rotate(glm::mat4(1.0f), glm::radians(20.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(1.5f, 1.5f, 1.5f));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_box2Material->SetToProgram(m_program.get());
+    m_box->Draw(m_program.get());
 }
