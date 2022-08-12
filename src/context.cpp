@@ -76,6 +76,7 @@ void Context::MouseButton(int button, int action, double x, double y) {
 
 bool Context::Init() {
     m_box = Mesh::CreateBox();
+    m_plane = Mesh::CreatePlane();
 
     m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
     if (!m_simpleProgram)
@@ -85,23 +86,11 @@ bool Context::Init() {
     if (!m_program)
         return false;
 
+    m_textureProgram = Program::Create("./shader/texture.vs", "./shader/texture.fs");
+    if (!m_textureProgram)
+        return false;
+
     glClearColor(m_clearColor.x, m_clearColor.y, m_clearColor.z, m_clearColor.w);
-
-    auto image = Image::Load("./image/container.jpg");
-    if (!image)
-        return false;
-    SPDLOG_INFO("image: {}x{}, {} channels",
-        image->GetWidth(), image->GetHeight(), image->GetChannelCount());
-
-    m_texture = Texture::CreateFromImage(image.get());
-
-    auto image2 = Image::Load("./image/awesomeface.png");
-    if (!image2)
-        return false;
-    SPDLOG_INFO("image2: {}x{}, {} channels",
-        image2->GetWidth(), image2->GetHeight(), image2->GetChannelCount());
-
-    m_texture2 = Texture::CreateFromImage(image2.get());
 
     // m_material.diffuse = Texture::CreateFromImage(Image::Load("./image/container2.png").get());
 	// m_material.specular = Texture::CreateFromImage(Image::Load("./image/container2_specular.png").get());
@@ -126,6 +115,9 @@ bool Context::Init() {
     m_box2Material->diffuse = Texture::CreateFromImage(Image::Load("./image/container2.png").get());
     m_box2Material->specular = Texture::CreateFromImage(Image::Load("./image/container2_specular.png").get());
     m_box2Material->shininess = 64.0f;
+
+    m_windowTexture = Texture::CreateFromImage(
+        Image::Load("./image/blending_transparent_window.png").get());
 
     return true;
 }
@@ -159,16 +151,13 @@ void Context::Render() {
     }
     ImGui::End();
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
 	m_cameraFront =
         glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraYaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
         glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraPitch), glm::vec3(1.0f, 0.0f, 0.0f)) *
         glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
-
-    // m_light.position = m_cameraPos;
-    // m_light.direction = m_cameraFront;
 
     auto projection = glm::perspective(glm::radians(45.0f), 
         (float)m_width / (float)m_height, 0.1f, 30.0f);
@@ -224,7 +213,7 @@ void Context::Render() {
     m_box->Draw(m_program.get());
 
     modelTransform =
-        glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.749f, 2.0f)) *
+        glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.75f, 2.0f)) *
         glm::rotate(glm::mat4(1.0f), glm::radians(20.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
         glm::scale(glm::mat4(1.0f), glm::vec3(1.5f, 1.5f, 1.5f));
     transform = projection * view * modelTransform;
@@ -232,4 +221,29 @@ void Context::Render() {
     m_program->SetUniform("modelTransform", modelTransform);
     m_box2Material->SetToProgram(m_program.get());
     m_box->Draw(m_program.get());
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    m_textureProgram->Use();
+    m_windowTexture->Bind();
+    m_textureProgram->SetUniform("tex", 0);
+
+    modelTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.5f, 4.0f));
+    transform = projection * view * modelTransform;
+    m_textureProgram->SetUniform("transform", transform);
+    m_plane->Draw(m_textureProgram.get());
+
+    modelTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.2f, 0.5f, 5.0f));
+    transform = projection * view * modelTransform;
+    m_textureProgram->SetUniform("transform", transform);
+    m_plane->Draw(m_textureProgram.get());
+
+    modelTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.4f, 0.5f, 6.0f));
+    transform = projection * view * modelTransform;
+    m_textureProgram->SetUniform("transform", transform);
+    m_plane->Draw(m_textureProgram.get());
 }
