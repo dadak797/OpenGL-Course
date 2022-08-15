@@ -121,6 +121,10 @@ bool Context::Init() {
     m_windowTexture = Texture::CreateFromImage(
         Image::Load("./image/blending_transparent_window.png").get());
 
+    m_postProgram = Program::Create("./shader/texture.vs", "./shader/gamma.fs");
+    if (!m_postProgram)
+        return false;
+
     return true;
 }
 
@@ -129,6 +133,7 @@ void Context::Render() {
         if (ImGui::ColorEdit4("clear color", glm::value_ptr(m_clearColor))) {
             glClearColor(m_clearColor.x, m_clearColor.y, m_clearColor.z, m_clearColor.w);
         }
+        ImGui::DragFloat("gamma", &m_gamma, 0.01f, 0.0f, 2.0f);
         ImGui::Separator();
         ImGui::DragFloat3("camera pos", glm::value_ptr(m_cameraPos), 0.01f);
         ImGui::DragFloat("camera yaw", &m_cameraYaw, 0.5f);
@@ -259,10 +264,11 @@ void Context::Render() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    m_textureProgram->Use();
-    m_textureProgram->SetUniform("transform",
+    m_postProgram->Use();
+    m_postProgram->SetUniform("transform",
         glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 2.0f, 1.0f)));
     m_framebuffer->GetColorAttachment()->Bind();
-    m_textureProgram->SetUniform("tex", 0);
-    m_box->Draw(m_textureProgram.get());
+    m_postProgram->SetUniform("tex", 0);
+    m_postProgram->SetUniform("gamma", m_gamma);
+    m_box->Draw(m_postProgram.get());
 }
