@@ -158,7 +158,7 @@ void Context::Render() {
 
         float aspectRatio = (float)m_width / (float)m_height;
         ImGui::Image((ImTextureID)m_framebuffer->GetColorAttachment()->Get(), 
-            ImVec2(150 * aspectRatio, 150));
+            ImVec2(150 * aspectRatio, 150), ImVec2(0, 1), ImVec2(1, 0));
     }
     ImGui::End();
 
@@ -266,7 +266,7 @@ void Context::Render() {
 
     m_postProgram->Use();
     m_postProgram->SetUniform("transform",
-        glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 2.0f, 1.0f)));
+       glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 2.0f, 1.0f)));
     m_framebuffer->GetColorAttachment()->Bind();
     m_postProgram->SetUniform("tex", 0);
     m_postProgram->SetUniform("gamma", m_gamma);
