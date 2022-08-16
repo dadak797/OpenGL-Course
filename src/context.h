@@ -70,6 +70,10 @@ private:
     // framebuffer
     FramebufferUPtr m_framebuffer;
 
+    // cubemap
+    CubeTextureUPtr m_cubeTexture;
+    ProgramUPtr m_skyboxProgram;
+
     int m_width { WINDOW_WIDTH };
     int m_height { WINDOW_HEIGHT };
 };
