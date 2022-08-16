@@ -109,7 +109,7 @@ bool CubeTexture::InitFromImages(const std::vector<Image*>& images) {
             case 3: format = GL_RGB; break;
         }
 
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB,
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format,
         image->GetWidth(), image->GetHeight(), 0,
         format, GL_UNSIGNED_BYTE, image->GetData());
     }
