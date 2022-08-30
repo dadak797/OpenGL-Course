@@ -75,6 +75,10 @@ private:
     ProgramUPtr m_skyboxProgram;
     ProgramUPtr m_envMapProgram;
 
+    TexturePtr m_grassTexture;
+    ProgramUPtr m_grassProgram;
+    std::vector<glm::vec3> m_grassPos;
+
     int m_width { WINDOW_WIDTH };
     int m_height { WINDOW_HEIGHT };
 };
