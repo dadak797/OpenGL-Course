@@ -89,7 +89,7 @@ int main(int argc, const char** argv)
     glfwWindowHint(GLFW_SAMPLES, 4);
 #endif
 
-    // glfw 윈도우 생성, 실패하면 에러 출력 후 종료
+    // glfw 윈도우 생성, 실패하면 에러 출력 후 종료 
     SPDLOG_INFO("Create glfw window");
 #ifdef __EMSCRIPTEN__ 
     int width, height;
