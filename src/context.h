@@ -78,6 +78,8 @@ private:
     TexturePtr m_grassTexture;
     ProgramUPtr m_grassProgram;
     std::vector<glm::vec3> m_grassPos;
+    BufferUPtr m_grassPosBuffer;
+    VertexLayoutUPtr m_grassInstance;
 
     int m_width { WINDOW_WIDTH };
     int m_height { WINDOW_HEIGHT };
